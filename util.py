@@ -85,16 +85,15 @@ def trigger_setup(vimba):
     with cams[0] as cam:
         #exposure
         cam.ExposureAuto.set("Off")
-        cam.ExposureTimeAbs.set(1000000)#65000#400000
+        cam.ExposureTimeAbs.set(12185)#65000#1000000
 
         #trigger
         cam.TriggerSelector.set("FrameStart")
         cam.TriggerSource.set("Line1")#Line1 faster but no electric isolation
         # cam.TriggerSource.set("Line2")  # Line2 slower but with electric isolation
         cam.TriggerActivation.set("RisingEdge")
-        cam.AcquisitionFrameCount.set(5)#the limit of the number of imaes that can be taken
-        cam.AcquisitionMode.set("MultiFrame")#SingleFrame
-        cam.Gain.set("0")#16
+        cam.AcquisitionMode.set("SingleFrame")#SingleFrame
+        cam.Gain.set("10")#16
         cam.Gamma.set("1")
         cam.TriggerMode.set("On")
 
@@ -161,12 +160,12 @@ def transform_image_list(image_list):
         image_list[frame] = minLimit(image_list[frame] , 60)
         print("transformed frame "+str(frame))
     return image_list
-def save_multipal_images(frame_list):
+def save_multipal_images(frame_list,name="frame"):
     if frame_list==[]:raise Exception("no image cuptcherd")
     for frame in range(len(frame_list)):
-        name = "images/"+'frame ' + str(frame) + '.jpg'
-        cv2.imwrite(name, frame_list[frame])
-        print("saved " + name)
+        file_name = "images/"+name+ " " + str(frame) + '.jpg'
+        cv2.imwrite(file_name, frame_list[frame])
+        print("saved " + file_name)
 
 def minLimit(image,limit):
     image = cv2.cvtColor(image, cv2.CAP_PVAPI_PIXELFORMAT_MONO8)
