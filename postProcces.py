@@ -3,6 +3,8 @@ import numpy as np
 from vimba import Vimba
 import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d
+import colorsys
+
 
 import util
 
@@ -15,9 +17,10 @@ def find_defrances_in_given_image_set_and_make_video():
         # cv2.imshow("frame " +str(i),frame_list[i])
     if (len(frame_list) > 1):  # subtracting adjacent frames to make a ndarray of the changes
         for i in range(len(frame_list) - 1):
-            dif = util.getDifFrame(frame_list[i], frame_list[i+1], 0)*scaller
+            dif = util.getPosDifFrame(frame_list[i], frame_list[i+1], 15)*scaller
+            # dif = util.create_color_map(dif)
             dif_list.append(dif)
-            cv2.imwrite("images/dif "+str(i)+".jpg", dif)
+            cv2.imwrite("images/dif "+str(i)+".png", dif)
     # util.create_video_from_images_list(dif_list,"post procceses diffrances 30",1)
     cv2.waitKey(0)
 
