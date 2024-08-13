@@ -1,3 +1,4 @@
+import colorsys
 import time
 
 import cv2
@@ -234,3 +235,10 @@ def get_and_save_multipal_images_and_time_log(cam,number_of_images):
         frame_cuptcherd_time=time.time_ns()
     print("saved all images")
     return (frame_list,time_log)
+
+def create_color_map(image):
+    for row in range(len(image)):
+        for col in range(len(image[row])):
+            image[row][col] = np.multiply(colorsys.hsv_to_rgb(image[row][col][0] / 360.0, 1, 1), image[row][col][0])
+
+    return image
