@@ -21,8 +21,16 @@ def find_defrances_in_given_image_set_and_make_video():
             # dif = util.create_color_map(dif)
             dif_list.append(dif)
             cv2.imwrite("images/dif "+str(i)+".png", dif)
-    # util.create_video_from_images_list(dif_list,"post procceses diffrances 30",1)
-    cv2.waitKey(0)
+def process_and_color_for_range(start, end):
+    scaller = 50
+    frame1 =  np.asarray(Image.open("images/frame " + str(start) + '.jpg'))
+    if(end-start<1):return
+    for image in range(start,end):
+        frame2 = np.asarray(Image.open("images/frame " + str(image+1) + '.jpg'))
+        dif = util.getPosDifFrame(frame1, frame2, 12) * scaller
+        util.create_color_map(dif)
+        cv2.imwrite("images/dif " + str(image) + ".png", dif)
+        frame1=frame2
 
 def process():
     frame = util.accuire_images_as_ndarrays(1, "testMetirial")[0]
