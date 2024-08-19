@@ -18,7 +18,7 @@ def main():
     with Vimba.get_instance() as vimba:
         number_of_images = 3
         if (number_of_images > 0):
-            cams = util.normal_setup(vimba)
+            cams = util.non_trigger_setup(vimba)
             with cams[0] as cam:
                 frame_list, time_log = util.get_and_save_multipal_images_and_time_log(cam, number_of_images)
 

@@ -135,7 +135,7 @@ def trigger_setup(vimba):
     return cams
 
 
-def normal_setup(vimba):
+def non_trigger_setup(vimba):
     """
         a function that puts the right config for continuance triggering (no trigger) on the first active camera (in the active cammeras list)
         @:param vimba: Vimba.get_instance - a variable that used for getting and interacting with the allied vision camera
