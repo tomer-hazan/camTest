@@ -403,3 +403,20 @@ def create_color_map(image):
             image[row][col] = np.multiply(colorsys.hsv_to_rgb(image[row][col][0] / 360.0, 1, 1), image[row][col][0])
 
     return image
+
+
+def capture_and_save_constant_fps(cam, time_between_frames, number_of_images):
+    """
+    a function that captures and saves to files a given amount of images with a constant fps (constant time between frames)
+    :param cam: Camera - the camera that would be used to take the images with
+    :param time_between_frames: float - the time the camera waits between each frame
+    :param number_of_images: int - the amount of images that would be captured
+    """
+    frame_capture_time = time.time()
+    for img in range(number_of_images):
+        frame = cam.get_frame()
+        print(time.time() - frame_capture_time)
+        frame_capture_time = time.time()
+        frame.convert_pixel_format(PixelFormat.Mono8)
+        cv2.imwrite('images/frame ' + str(img) + '.jpg', frame.as_opencv_image())
+        time.sleep(time_between_frames - (time.time() - frame_capture_time) - 0.07)
