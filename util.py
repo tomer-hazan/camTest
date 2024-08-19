@@ -3,7 +3,7 @@ import time
 
 import cv2
 import os
-
+import constants
 import numpy as np
 from PIL import Image
 from vimba import PixelFormat
@@ -117,16 +117,15 @@ def trigger_setup(vimba):
     with cams[0] as cam:
         #exposure
         cam.ExposureAuto.set("Off")
-        cam.ExposureTimeAbs.set(12185)  #65000#1000000
+        cam.ExposureTimeAbs.set(constants.exposure_time)  #65000#1000000
 
         #trigger
         cam.TriggerSelector.set("FrameStart")
-        cam.TriggerSource.set("Line1")  #Line1 faster but no electric isolation
-        # cam.TriggerSource.set("Line2")  # Line2 slower but with electric isolation
+        cam.TriggerSource.set(constants.trigger_line)
         cam.TriggerActivation.set("RisingEdge")
-        cam.AcquisitionMode.set("SingleFrame")  #SingleFrame
-        cam.Gain.set("21")  #16
-        cam.Gamma.set("1")
+        cam.AcquisitionMode.set("SingleFrame")
+        cam.Gain.set(constants.gain)
+        cam.Gamma.set(constants.gamma)
         cam.TriggerMode.set("On")
 
         print("event triger - " + str(cam.EventFrameTriggerReady))
@@ -150,12 +149,12 @@ def non_trigger_setup(vimba):
         with cams[0] as cam:
             #exposure
             cam.ExposureAuto.set("Off")
-            cam.ExposureTimeAbs.set(64885)  #1033940
-            cam.Gamma.set(1)
+            cam.ExposureTimeAbs.set(constants.exposure_time)  #1033940
+            cam.Gamma.set(constants.gamma)
             cam.TriggerSelector.set("FrameStart")
             cam.TriggerMode.set("Off")
-            cam.TriggerSource.set("Freerun")  #Line1 faster but no electric isolation
-            cam.Gain.set("32")
+            cam.TriggerSource.set("Freerun")
+            cam.Gain.set(constants.gain)
     except:
         raise Exception("the cammera is used elsewhere")
 
@@ -230,12 +229,12 @@ def transform_image_list(image_list):
     for frame in range(len(image_list)):
         image_list[frame].convert_pixel_format(PixelFormat.Mono8)
         image_list[frame] = image_list[frame].as_opencv_image()
-        image_list[frame] = minLimit(image_list[frame], 60)
+        image_list[frame] = minLimit(image_list[frame])
         print("transformed frame " + str(frame))
     return image_list
 
 
-def save_multipal_images(frame_list, name="frame"):
+def save_multiple_images(frame_list, folder="", name="frame"):
     """
         a function that saves to a file (inside the images folder) a list of images
         @:param frame_list: [ndArray] - the image list to be saved
@@ -249,7 +248,7 @@ def save_multipal_images(frame_list, name="frame"):
         print("saved " + file_name)
 
 
-def minLimit(image, limit):
+def minLimit(image, limit=constants.min_limit_threshold):
     """
         a function that filters out all the pixels whose value is lower than the given limit
         @:param image: ndArray - represents a given image
@@ -260,7 +259,7 @@ def minLimit(image, limit):
     return np.array([[col if col[0] >= limit else [0, 0, 0] for col in row] for row in image]).astype(np.uint8)
 
 
-def limits(image, min_limit=0, max_limit=255):
+def limits(image, min_limit=constants.min_limit_threshold, max_limit=255):
     """
         a function that filters out all the pixels whose value is out of the given range
         @:param image: ndArray - represents a given image
@@ -270,7 +269,7 @@ def limits(image, min_limit=0, max_limit=255):
     """
     image = cv2.cvtColor(image, cv2.CAP_PVAPI_PIXELFORMAT_MONO8)
     return np.array(
-        [[col if col[0] >= min_limit and col[0] <= max_limit else [0, 0, 0] for col in row] for row in image]).astype(
+        [[col if min_limit <= col[0] <= max_limit else [0, 0, 0] for col in row] for row in image]).astype(
         np.uint8)
 
 
@@ -291,7 +290,7 @@ def acquire_images_as_ndArrays(number_of_images, folder=None, name="frame"):
             img = Image.open(folder + "/" + name + ' ' + str(i) + '.jpg')
             numpy_frame = np.asarray(img)
             frame_list.append(numpy_frame)
-            print("opened " +str(i)+"/"+number_of_images_str)
+            print("opened " + str(i) + "/" + number_of_images_str)
     else:
         for i in range(number_of_images):
             img = Image.open('frame ' + str(i) + '.jpg')
@@ -302,7 +301,7 @@ def acquire_images_as_ndArrays(number_of_images, folder=None, name="frame"):
     return frame_list
 
 
-def getDifFrame(frame1, frame2, min_limit=0, max_limit=255):
+def getDifFrame(frame1, frame2, min_limit=constants.min_limit_threshold, max_limit=255):
     """
         a function that returns an ndArray that is the absolute value of the differences of two frames in the form of ndArray's (f2-f1)
         after filtering the pixel values such that they would be higher than the min_limit and lower than the max_limit
@@ -362,7 +361,7 @@ def sum_list(list):
     return sum.astype(np.int32)
 
 
-def get_and_save_multipal_images_and_time_log(cam, number_of_images):
+def get_and_save_multiple_images_and_time_log(cam, number_of_images):
     """
         a function that captures and saves to a file a given amount of images using the given camera and transforms it using the like in transform_image_list()
         @:param cam: Camera - the camera that would be used to take the images with
@@ -380,7 +379,7 @@ def get_and_save_multipal_images_and_time_log(cam, number_of_images):
         print(time.time_ns() - frame_cuptcherd_time)
         frame.convert_pixel_format(PixelFormat.Mono8)
         image = frame.as_opencv_image()
-        image = minLimit(image, 0)
+        image = minLimit(image)
         frame_list.append(image)
         name = "images/" + 'frame ' + str(frame_number) + '.jpg'
         cv2.imwrite(name, image)
@@ -396,7 +395,7 @@ def create_color_map(image):
         a function that takes a monochrome image and colors its power such that pixel with lower value would be red and with higher value would be blue
         @note: the given image would be changed (make a clone if you want to keep the original image)
         @:param image: ndArray - the image to be colored
-        @:returns image: ndArray -  the original (but now colored ) image
+        @:return image: ndArray -  the original (but now colored ) image
     """
     for row in range(len(image)):
         for col in range(len(image[row])):

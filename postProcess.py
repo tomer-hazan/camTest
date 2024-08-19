@@ -41,7 +41,7 @@ def work_on_already_dif_images():
     dif_list = util.acquire_images_as_ndArrays(29, "testMetirial", "dif")
     if (len(dif_list) > 1):  # subtracting adjacent frames to make a ndarray of the changes
         for i in range(len(dif_list)):
-            dif = util.minLimit(dif_list[i],10)
+            dif = util.minLimit(dif_list[i])
             dif_list[i]=dif*30
 
     util.create_video_from_images_list(dif_list,"post procceses diffrances",1)
