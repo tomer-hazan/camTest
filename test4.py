@@ -20,7 +20,7 @@ def main():
         if (number_of_images > 0):
             cams = util.non_trigger_setup(vimba)
             with cams[0] as cam:
-                frame_list, time_log = util.get_and_save_multipal_images_and_time_log(cam, number_of_images)
+                frame_list, time_log = util.get_and_save_multiple_images_and_time_log(cam, number_of_images)
 
             # _, rect = sizeDetactionTest.detect_image(frame_list[0])
             # print("(x,y,width,height) = (" + str(rect[0]) + ", " + str(rect[1]) + ", " + str(rect[2]) + ", " + str(
