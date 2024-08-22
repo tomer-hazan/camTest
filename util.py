@@ -114,24 +114,27 @@ def trigger_setup(vimba):
     cams = vimba.get_all_cameras()
     if (len(cams) == 0):
         raise Exception("no camera found")
-    with cams[0] as cam:
-        #exposure
-        cam.ExposureAuto.set("Off")
-        cam.ExposureTimeAbs.set(constants.exposure_time)  #65000#1000000
+    try:
+        with cams[0] as cam:
+            #exposure
+            cam.ExposureAuto.set("Off")
+            cam.ExposureTimeAbs.set(constants.exposure_time)  #65000#1000000
 
-        #trigger
-        cam.TriggerSelector.set("FrameStart")
-        cam.TriggerSource.set(constants.trigger_line)
-        cam.TriggerActivation.set("RisingEdge")
-        cam.AcquisitionMode.set("SingleFrame")
-        cam.Gain.set(constants.gain)
-        cam.Gamma.set(constants.gamma)
-        cam.TriggerMode.set("On")
+            #trigger
+            cam.TriggerSelector.set("FrameStart")
+            cam.TriggerSource.set(constants.trigger_line)
+            cam.TriggerActivation.set("RisingEdge")
+            cam.AcquisitionMode.set("SingleFrame")
+            cam.Gain.set(constants.gain)
+            cam.Gamma.set(constants.gamma)
+            cam.TriggerMode.set("On")
 
-        print("event triger - " + str(cam.EventFrameTriggerReady))
-
+            print("event triger - " + str(cam.EventFrameTriggerReady))
+    except:
+        raise "the camera is used elsewhere"
     print("finished set up")
     return cams
+
 
 
 def non_trigger_setup(vimba):
@@ -156,10 +159,11 @@ def non_trigger_setup(vimba):
             cam.TriggerSource.set("Freerun")
             cam.Gain.set(constants.gain)
     except:
-        raise Exception("the cammera is used elsewhere")
+        raise Exception("the camera is used elsewhere")
 
     print("finished set up")
     return cams
+
 
 
 def find_differance(f1, f2):
